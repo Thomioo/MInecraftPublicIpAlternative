@@ -1,29 +1,29 @@
 {
 	"schemaVersion": 1,
-	"id": "fourth-dimension-ip",
+	"id": "serverfetcher",
 	"version": "${version}",
-	"name": "4th Dimension",
-	"description": "The only way to get to the 4th Dimension",
+	"name": "Server Fetcher",
+	"description": "Uses a python server to locate the current address of your minecraft server instead of constantly sharing your ngrok temporary one.",
 	"authors": [
 		"Tomesh"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/Thomioo/MInecraftPublicIpAlternative/releases/",
+		"sources": "https://github.com/Thomioo/MInecraftPublicIpAlternative/"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/fourth-dimension-ip/icon.png",
+	"icon": "assets/serverfetcher/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-			"com.fourthdimension.ip.FourthDimensionIP"
+			"com.serverfetcher.ip.ServerFetcher"
 		],
 		"modmenu": [
-			"com.fourthdimension.ip.config.ModMenuIntegration"
+			"com.serverfetcher.ip.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [
-		"fourth-dimension-ip.mixins.json"
+		"serverfetcher.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.13",

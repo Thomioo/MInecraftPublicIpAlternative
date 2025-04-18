@@ -1,4 +1,4 @@
-package com.fourthdimension.ip;
+package com.serverfetcher.ip;
 
 // --- Keep ALL existing imports ---
 import net.fabricmc.api.ClientModInitializer;
@@ -19,16 +19,15 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import com.fourthdimension.ip.config.ModConfig;
+import com.serverfetcher.ip.config.ModConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer; // Or JanksonConfigSerializer
 
-public class FourthDimensionIP implements ClientModInitializer {
+public class ServerFetcher implements ClientModInitializer {
 
     // --- Keep these static ---
-    public static final String MOD_ID = "fourth-dimension-ip"; // Define MOD_ID here
+    public static final String MOD_ID = "serverfetcher"; // Define MOD_ID here
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID); // Use MOD_ID for logger
-    private static final String IP_FETCH_URL = "https://drum-massive-directly.ngrok-free.app/ip";
     public static ModConfig CONFIG;
     private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -41,7 +40,7 @@ public class FourthDimensionIP implements ClientModInitializer {
         CONFIG = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
         // Update logging to show configured values
-        LOGGER.info("4th Dimension IP Mod Initialized! Using config:");
+        LOGGER.info("Server Fetcher Mod Initialized! Using config:");
         LOGGER.info(" - Server Name: {}", CONFIG.targetServerName);
         LOGGER.info(" - Fetch URL: {}", CONFIG.ipFetchUrl);
         // Fetch IP on initial startup
@@ -90,7 +89,7 @@ public class FourthDimensionIP implements ClientModInitializer {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(urlToFetch))
                     .timeout(Duration.ofSeconds(15))
-                    .header("User-Agent", "FourthDimensionIP-MinecraftMod/1.0")
+                    .header("User-Agent", "Server-Fetcher-MinecraftMod/1.0")
                     .GET()
                     .build();
 

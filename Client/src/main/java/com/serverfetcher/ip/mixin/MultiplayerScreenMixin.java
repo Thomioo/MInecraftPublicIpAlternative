@@ -1,6 +1,6 @@
-package com.fourthdimension.ip.mixin;
+package com.serverfetcher.ip.mixin;
 
-import com.fourthdimension.ip.FourthDimensionIP; // Import your main mod class
+import com.serverfetcher.ip.ServerFetcher; // Import your main mod class
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +14,7 @@ public abstract class MultiplayerScreenMixin {
     @Inject(method = "refresh", at = @At("HEAD"))
     private void onRefresh(CallbackInfo ci) {
         // Call the static method from your main mod class to start the IP fetch
-        FourthDimensionIP.LOGGER.info("Multiplayer screen refresh triggered, fetching IP...");
-        FourthDimensionIP.fetchIpAndUpdateServerList();
+        ServerFetcher.LOGGER.info("Multiplayer screen refresh triggered, fetching IP...");
+        ServerFetcher.fetchIpAndUpdateServerList();
     }
 }

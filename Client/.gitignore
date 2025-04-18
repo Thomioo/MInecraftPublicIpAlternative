@@ -16,8 +16,8 @@ classes/
 *.ipr
 *.iws
 
-# vs
-.vs/
+# vscode
+
 .settings/
 .vscode/
 bin/

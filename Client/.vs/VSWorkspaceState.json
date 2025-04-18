@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\main",
+    "\\src\\main\\java",
+    "\\src\\main\\java\\com",
+    "\\src\\main\\java\\com\\serverfetcher",
+    "\\src\\main\\java\\com\\serverfetcher\\ip",
+    "\\src\\main\\java\\com\\serverfetcher\\ip\\mixin",
+    "\\src\\main\\resources",
+    "\\src\\main\\resources\\assets",
+    "\\src\\main\\resources\\assets\\serverfetcher"
+  ],
+  "SelectedNode": "\\gradle.properties",
+  "PreviewInSolutionExplorer": false
+}

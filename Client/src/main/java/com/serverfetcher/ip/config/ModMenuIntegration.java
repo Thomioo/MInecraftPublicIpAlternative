@@ -1,4 +1,4 @@
-package com.fourthdimension.ip.config;
+package com.serverfetcher.ip.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -22,7 +22,7 @@ public class ModMenuIntegration implements ModMenuApi {
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(parent)
                     // Use the translation key for the title
-                    .setTitle(Text.translatable("text.autoconfig.fourth-dimension-ip.title"))
+                    .setTitle(Text.translatable("text.autoconfig.server-fetcher.title"))
                     // Define what happens when "Save" is clicked
                     .setSavingRunnable(configHolder::save);
 
@@ -32,18 +32,18 @@ public class ModMenuIntegration implements ModMenuApi {
             // Get or create the "General" category
             ConfigCategory general = builder.getOrCreateCategory(
                     // Use the translation key for the category name
-                    Text.translatable("text.autoconfig.fourth-dimension-ip.category.default")
+                    Text.translatable("text.autoconfig.server-fetcher.category.default")
             );
 
             // --- Add the Target Server Name entry ---
             general.addEntry(entryBuilder.startStrField(
                             // Use the translation key for the option name
-                            Text.translatable("text.autoconfig.fourth-dimension-ip.option.targetServerName"),
+                            Text.translatable("text.autoconfig.server-fetcher.option.targetServerName"),
                             config.targetServerName // Current value
                     )
-                    .setDefaultValue("4th Dimension") // Default value shown by Cloth
+                    .setDefaultValue("New Server") // Default value shown by Cloth
                     .setTooltip( // Set tooltip using translation keys
-                            Text.translatable("text.autoconfig.fourth-dimension-ip.option.targetServerName.tooltip")
+                            Text.translatable("text.autoconfig.server-fetcher.option.targetServerName.tooltip")
                     )
                     // Define what happens when the value is saved in the GUI
                     .setSaveConsumer(newValue -> config.targetServerName = newValue)
@@ -53,13 +53,13 @@ public class ModMenuIntegration implements ModMenuApi {
             // --- Add the IP Fetch URL entry ---
             general.addEntry(entryBuilder.startStrField(
                             // Use the translation key for the option name
-                            Text.translatable("text.autoconfig.fourth-dimension-ip.option.ipFetchUrl"),
+                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl"),
                             config.ipFetchUrl // Current value
                     )
                     .setDefaultValue("https://drum-massive-directly.ngrok-free.app/ip") // Default value
                     .setTooltip( // Set multi-line tooltip using translation keys
-                            Text.translatable("text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[0]"),
-                            Text.translatable("text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[1]")
+                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl.tooltip[0]"),
+                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl.tooltip[1]")
                     )
                     // Define what happens when the value is saved
                     .setSaveConsumer(newValue -> config.ipFetchUrl = newValue)
