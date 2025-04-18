@@ -1,0 +1,11 @@
+﻿{
+  "text.autoconfig.fourth-dimension-ip.title": "Konfigurace 4th Dimension IP",
+  "text.autoconfig.fourth-dimension-ip.category.default": "Obecná Nastavení",
+
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl": "URL pro Získání IP Serveru",
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[0]": "Webová adresa (URL), ze které se má získat",
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[1]": "IP adresa serveru. Měla by být ve formátu: URL/ip",
+
+  "text.autoconfig.fourth-dimension-ip.option.targetServerName": "Název Serveru",
+  "text.autoconfig.fourth-dimension-ip.option.targetServerName.tooltip": "Název zobrazený pro server v seznamu serverů."
+}

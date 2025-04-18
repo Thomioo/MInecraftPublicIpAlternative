@@ -1,0 +1,11 @@
+{
+  "text.autoconfig.fourth-dimension-ip.title": "4th Dimension IP Configuration",
+  "text.autoconfig.fourth-dimension-ip.category.default": "General Settings",
+
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl": "Server IP Fetch URL",
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[0]": "The web address (URL) from which to fetch the server's",
+  "text.autoconfig.fourth-dimension-ip.option.ipFetchUrl.tooltip[1]": "IP address. The field should be in the form of URL/ip",
+
+  "text.autoconfig.fourth-dimension-ip.option.targetServerName": "Server Name",
+  "text.autoconfig.fourth-dimension-ip.option.targetServerName.tooltip": "The name displayed for the server in the multiplayer list."
+}

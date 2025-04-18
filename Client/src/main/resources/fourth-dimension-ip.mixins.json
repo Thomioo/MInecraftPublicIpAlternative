@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "com.fourthdimension.ip.mixin", // The package where your mixin classes will live
+	"compatibilityLevel": "JAVA_21", // Important for Minecraft 1.21+
+	"mixins": [
+		// Add server-side mixins here (none for this mod)
+	],
+	"client": [
+		// Add client-side mixin classes here
+		"MultiplayerScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
