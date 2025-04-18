@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 NGROK_STATIC_DOMAIN = "" # Get your unique name from ngrok dashboard
 conf.get_default().region = "eu" # Change to your region if needed
 """=============================="""
+
 app = FastAPI()
 public_address = None
 logging.getLogger("pyngrok").setLevel(logging.CRITICAL)   # Suppress pyngrok logger

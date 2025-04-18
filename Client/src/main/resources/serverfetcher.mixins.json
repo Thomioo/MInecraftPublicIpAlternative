@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "com.fourthdimension.ip.mixin", // The package where your mixin classes will live
+	"package": "com.serverfetcher.ip.mixin", // The package where your mixin classes will live
 	"compatibilityLevel": "JAVA_21", // Important for Minecraft 1.21+
 	"mixins": [
 		// Add server-side mixins here (none for this mod)

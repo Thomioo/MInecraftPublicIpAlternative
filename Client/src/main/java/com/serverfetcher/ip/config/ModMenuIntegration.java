@@ -22,7 +22,7 @@ public class ModMenuIntegration implements ModMenuApi {
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(parent)
                     // Use the translation key for the title
-                    .setTitle(Text.translatable("text.autoconfig.server-fetcher.title"))
+                    .setTitle(Text.translatable("text.autoconfig.serverfetcher.title"))
                     // Define what happens when "Save" is clicked
                     .setSavingRunnable(configHolder::save);
 
@@ -32,18 +32,18 @@ public class ModMenuIntegration implements ModMenuApi {
             // Get or create the "General" category
             ConfigCategory general = builder.getOrCreateCategory(
                     // Use the translation key for the category name
-                    Text.translatable("text.autoconfig.server-fetcher.category.default")
+                    Text.translatable("text.autoconfig.serverfetcher.category.default")
             );
 
             // --- Add the Target Server Name entry ---
             general.addEntry(entryBuilder.startStrField(
                             // Use the translation key for the option name
-                            Text.translatable("text.autoconfig.server-fetcher.option.targetServerName"),
+                            Text.translatable("text.autoconfig.serverfetcher.option.targetServerName"),
                             config.targetServerName // Current value
                     )
                     .setDefaultValue("New Server") // Default value shown by Cloth
                     .setTooltip( // Set tooltip using translation keys
-                            Text.translatable("text.autoconfig.server-fetcher.option.targetServerName.tooltip")
+                            Text.translatable("text.autoconfig.serverfetcher.option.targetServerName.tooltip")
                     )
                     // Define what happens when the value is saved in the GUI
                     .setSaveConsumer(newValue -> config.targetServerName = newValue)
@@ -53,13 +53,13 @@ public class ModMenuIntegration implements ModMenuApi {
             // --- Add the IP Fetch URL entry ---
             general.addEntry(entryBuilder.startStrField(
                             // Use the translation key for the option name
-                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl"),
+                            Text.translatable("text.autoconfig.serverfetcher.option.ipFetchUrl"),
                             config.ipFetchUrl // Current value
                     )
-                    .setDefaultValue("https://drum-massive-directly.ngrok-free.app/ip") // Default value
+                    .setDefaultValue("") // Default value
                     .setTooltip( // Set multi-line tooltip using translation keys
-                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl.tooltip[0]"),
-                            Text.translatable("text.autoconfig.server-fetcher.option.ipFetchUrl.tooltip[1]")
+                            Text.translatable("text.autoconfig.serverfetcher.option.ipFetchUrl.tooltip[0]"),
+                            Text.translatable("text.autoconfig.serverfetcher.option.ipFetchUrl.tooltip[1]")
                     )
                     // Define what happens when the value is saved
                     .setSaveConsumer(newValue -> config.ipFetchUrl = newValue)
