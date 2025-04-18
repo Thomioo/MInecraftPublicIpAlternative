@@ -1,0 +1,40 @@
+# gradle
+
+Client/.gradle/
+Client/build/
+Client/out/
+Client/classes/
+
+# eclipse
+
+Client/*.launch
+
+# idea
+
+Client/.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+
+Client/.settings/
+Client/.vscode/
+Client/bin/
+Client/.classpath
+Client/.project
+
+# macos
+
+Client/*.DS_Store
+
+# fabric
+
+Client/run/
+
+# java
+
+Client/hs_err_*.log
+Client/replay_*.log
+Client/*.hprof
+Client/*.jfr
