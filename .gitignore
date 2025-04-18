@@ -12,9 +12,9 @@ Client/*.launch
 # idea
 
 Client/.idea/
-*.iml
-*.ipr
-*.iws
+Client/*.iml
+Client/*.ipr
+Client/*.iws
 
 # vscode
 
