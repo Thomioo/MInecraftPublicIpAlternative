@@ -25,7 +25,7 @@ This project provides a simple way to share your Minecraft server's public IP ad
 - [fastapi](https://fastapi.tiangolo.com/)
 - [uvicorn](https://www.uvicorn.org/)
 - [pyngrok](https://github.com/alexdlaird/pyngrok)
-- An [ngrok](https://ngrok.com/) account (**required** for authentication and tunnels)
+- An [ngrok](https://ngrok.com/) account
 
 Install dependencies:
 ```sh
@@ -37,7 +37,7 @@ pip install -r Server/requirements.txt
 1. Log in to your ngrok account and copy your auth token from the [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken).
 2. In your terminal, run:
    ```sh
-   setx NGROK_AUTHTOKEN "your-ngrok-auth-token"
+   ngrok config add-authtoken "your-ngrok-auth-token"
    ```
    - Restart your terminal or computer if needed so the environment variable is available.
 
@@ -57,7 +57,7 @@ pip install -r Server/requirements.txt
 ### 1. Start the Python Server
 
 1. **Configure ngrok:**
-   - (Optional) Set a static ngrok domain in `Server/server.py` by editing `NGROK_STATIC_DOMAIN`.
+   - Set a static ngrok domain in `Server/server.py` by editing `NGROK_STATIC_DOMAIN`.
    - Set your ngrok region if needed.
 
 2. **Run the server:**
@@ -67,7 +67,7 @@ pip install -r Server/requirements.txt
    ```
    - The server will print a public URL (e.g., `https://your-ngrok-domain.ngrok-free.app/ip`).
 
-### 2. Build and Install the Minecraft Mod
+### 2. Build and Install the Minecraft Mod or Download it from the Releases Page
 
 1. **Build the mod:**
    ```sh
