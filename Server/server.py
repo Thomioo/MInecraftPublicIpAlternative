@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import os
 
 """======USER CONFIGURATION======"""
-NGROK_STATIC_DOMAIN = "drum-massive-directly.ngrok-free.app" # Get your unique name from ngrok dashboard
+NGROK_STATIC_DOMAIN = "" # Get your unique name from ngrok dashboard
 conf.get_default().region = "eu" # Change to your region if needed
 IP_HISTORY_FILE = "ip_history.txt"
 """=============================="""
