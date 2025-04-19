@@ -1,5 +1,6 @@
 import uvicorn, logging
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from pyngrok import ngrok, conf
 from contextlib import asynccontextmanager
 
@@ -13,7 +14,7 @@ dynmap_port = 8123 # Port for Dynmap, default is 8123
 app = FastAPI()
 public_address = None
 logging.getLogger("pyngrok").setLevel(logging.CRITICAL)   # Suppress pyngrok logger
-dynamp_address = None
+dynmap_address = None
 
 def setup_ngrok_tunnel():
     try:
@@ -23,9 +24,9 @@ def setup_ngrok_tunnel():
 
         public_url = ngrok.connect(addr=8080, domain=NGROK_STATIC_DOMAIN).public_url
         if dynmap:
-            global dynamp_address
-            dynamp_address = ngrok.connect(addr=dynmap_port, domain=NGROK_STATIC_DOMAIN).public_url
-            print(f"Dynmap URL: {dynamp_address.replace('tcp://', '')}/ip")
+            global dynmap_address
+            dynmap_address = ngrok.connect(dynmap_port, "tcp").public_url
+            print(f"Dynmap URL: {dynmap_address.replace('tcp://', '')}/ip")
         return public_url
 
     except Exception as e:
@@ -50,8 +51,9 @@ async def get_ip():
 
 @app.get("/dynmap")
 async def get_dynmap_ip():
+    global dynmap_address
     if dynmap:
-        return dynamp_address.replace('tcp://', '')
+        return dynmap_address.replace('tcp://', '')
     else:
         return {"error": "Dynmap is not enabled."}
 
