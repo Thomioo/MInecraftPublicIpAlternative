@@ -6,11 +6,15 @@ from contextlib import asynccontextmanager
 """======USER CONFIGURATION======"""
 NGROK_STATIC_DOMAIN = "" # Get your unique name from ngrok dashboard
 conf.get_default().region = "eu" # Change to your region if needed
+dynmap = False # Set to True if you are using Dynmap
+dynmap_port = 8123 # Port for Dynmap, default is 8123
 """=============================="""
 
 app = FastAPI()
 public_address = None
 logging.getLogger("pyngrok").setLevel(logging.CRITICAL)   # Suppress pyngrok logger
+dynamp_address = None
+
 def setup_ngrok_tunnel():
     try:
       
@@ -18,6 +22,10 @@ def setup_ngrok_tunnel():
             return None
 
         public_url = ngrok.connect(addr=8080, domain=NGROK_STATIC_DOMAIN).public_url
+        if dynmap:
+            global dynamp_address
+            dynamp_address = ngrok.connect(addr=dynmap_port, domain=NGROK_STATIC_DOMAIN).public_url
+            print(f"Dynmap URL: {dynamp_address.replace('tcp://', '')}/ip")
         return public_url
 
     except Exception as e:
@@ -39,6 +47,13 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/ip")
 async def get_ip():
     return public_address.replace('tcp://', '')
+
+@app.get("/dynmap")
+async def get_dynmap_ip():
+    if dynmap:
+        return dynamp_address.replace('tcp://', '')
+    else:
+        return {"error": "Dynmap is not enabled."}
 
 if __name__ == "__main__":
     public_url = setup_ngrok_tunnel()
