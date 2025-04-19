@@ -3,30 +3,32 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pyngrok import ngrok, conf
 from contextlib import asynccontextmanager
+import os
 
 """======USER CONFIGURATION======"""
-NGROK_STATIC_DOMAIN = "" # Get your unique name from ngrok dashboard
+NGROK_STATIC_DOMAIN = "drum-massive-directly.ngrok-free.app" # Get your unique name from ngrok dashboard
 conf.get_default().region = "eu" # Change to your region if needed
-dynmap = False # Set to True if you are using Dynmap
-dynmap_port = 8123 # Port for Dynmap, default is 8123
+IP_HISTORY_FILE = "ip_history.txt"
 """=============================="""
 
 app = FastAPI()
 public_address = None
 logging.getLogger("pyngrok").setLevel(logging.CRITICAL)   # Suppress pyngrok logger
-dynmap_address = None
+
+def store_ip_history(ip):
+    if ip:
+        with open(IP_HISTORY_FILE, "a") as f:
+            f.write(ip + "\n")
 
 def setup_ngrok_tunnel():
     try:
-      
         if not NGROK_STATIC_DOMAIN or "YOUR_UNIQUE_NAME" in NGROK_STATIC_DOMAIN:
             return None
 
         public_url = ngrok.connect(addr=8080, domain=NGROK_STATIC_DOMAIN).public_url
-        if dynmap:
-            global dynmap_address
-            dynmap_address = ngrok.connect(dynmap_port, "tcp").public_url
-            print(f"Dynmap URL: {dynmap_address.replace('tcp://', '')}/ip")
+
+        # Store the public_url in history
+        store_ip_history(public_url)
         return public_url
 
     except Exception as e:
@@ -34,9 +36,10 @@ def setup_ngrok_tunnel():
 
 def start_ngrok():
     global public_address
-
     tunnel = ngrok.connect(25565, "tcp")
     public_address = tunnel.public_url
+    # Store the public_address in history
+    store_ip_history(public_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,14 +51,6 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/ip")
 async def get_ip():
     return public_address.replace('tcp://', '')
-
-@app.get("/dynmap")
-async def get_dynmap_ip():
-    global dynmap_address
-    if dynmap:
-        return dynmap_address.replace('tcp://', '')
-    else:
-        return {"error": "Dynmap is not enabled."}
 
 if __name__ == "__main__":
     public_url = setup_ngrok_tunnel()

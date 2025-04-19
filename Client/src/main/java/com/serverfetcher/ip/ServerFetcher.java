@@ -21,7 +21,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import com.serverfetcher.ip.config.ModConfig;
 import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer; // Or JanksonConfigSerializer
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class ServerFetcher implements ClientModInitializer {
 
@@ -32,6 +37,15 @@ public class ServerFetcher implements ClientModInitializer {
     private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
+    
+    private static String sanitizeServerAddress(String address) {
+        if (address == null) {
+            return "";
+        }
+        // Replace ':' and '/' with '_'
+        // Add other replacements if needed (e.g., '<', '>', '|', '?', '*')
+        return address.split(":")[0];
+    }
 
     @Override
     public void onInitializeClient() {
@@ -150,23 +164,92 @@ public class ServerFetcher implements ClientModInitializer {
         }
     }
 
+    private static void renameXaeroFolders(String oldAddress, String newAddress) {
+        if (oldAddress == null || newAddress == null || oldAddress.equalsIgnoreCase(newAddress)) {
+            LOGGER.debug("Skipping Xaero folder rename: Addresses are null or the same.");
+            return;
+        }
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null) {
+            LOGGER.warn("Cannot rename Xaero folders: MinecraftClient is null.");
+            return;
+        }
+
+        // Sanitize addresses for folder names
+        String sanitizedOld = sanitizeServerAddress(oldAddress);
+        String sanitizedNew = sanitizeServerAddress(newAddress);
+        if (sanitizedOld.isEmpty() || sanitizedNew.isEmpty()) {
+             LOGGER.warn("Skipping Xaero folder rename: Sanitized address is empty (Old: '{}', New: '{}')", sanitizedOld, sanitizedNew);
+             return;
+        }
+
+        Path runDir = client.runDirectory.toPath(); // Get Minecraft instance directory path
+
+        // --- Define Base Paths based on user's description ---
+        // IMPORTANT: Ensure these base directories actually exist where Xaero's saves them in the user's setup!
+        Path xaeroMinimapBase = runDir.resolve("xaero").resolve("minimap");
+        Path xaeroWorldMapBase = runDir.resolve("world-map"); // Assuming 'world-map' is directly in runDir based on description
+
+        // --- Construct full old and new paths ---
+        String folderPrefix = "Multiplayer_";
+        Path oldMinimapPath = xaeroMinimapBase.resolve(folderPrefix + sanitizedOld);
+        Path newMinimapPath = xaeroMinimapBase.resolve(folderPrefix + sanitizedNew);
+        Path oldWorldMapPath = xaeroWorldMapBase.resolve(folderPrefix + sanitizedOld);
+        Path newWorldMapPath = xaeroWorldMapBase.resolve(folderPrefix + sanitizedNew);
+
+        LOGGER.info("Attempting to rename Xaero folders for IP change from '{}' to '{}'", oldAddress, newAddress);
+
+        // --- Rename Minimap Folder ---
+        renameSingleXaeroFolder(oldMinimapPath, newMinimapPath, "Minimap");
+
+        // --- Rename World Map Folder ---
+        renameSingleXaeroFolder(oldWorldMapPath, newWorldMapPath, "World Map");
+    }
+
+    /**
+     * Helper method to rename a single Xaero data folder.
+     * Includes checks for existence and potential conflicts.
+     */
+    private static void renameSingleXaeroFolder(Path oldPath, Path newPath, String mapType) {
+        try {
+            // 1. Check if the OLD folder exists
+            if (!Files.isDirectory(oldPath)) { // Use isDirectory to be sure it's not just a file
+                LOGGER.debug("Xaero {} folder for old IP does not exist, skipping rename: {}", mapType, oldPath);
+                return;
+            }
+
+            // 2. Check if the NEW folder *already* exists (potential conflict)
+            if (Files.exists(newPath)) {
+                // Decide how to handle conflict: Log warning and abort (safest)
+                LOGGER.warn("Xaero {} folder for new IP already exists! Cannot rename automatically to avoid data loss: {}", mapType, newPath);
+                // Alternative (Risky - Deletes existing data):
+                // LOGGER.warn("Xaero {} folder for new IP already exists! Deleting existing folder: {}", mapType, newPath);
+                // try { Files.delete(newPath); } catch (IOException eDel) { LOGGER.error("Failed to delete conflicting folder {}", newPath, eDel); return; }
+                return; // Abort rename
+            }
+
+            // 3. Perform the rename (move)
+            Files.move(oldPath, newPath); // Throws IOException on failure
+            LOGGER.info("Successfully renamed Xaero {} folder: {} -> {}", mapType, oldPath.getFileName(), newPath.getFileName());
+
+        } catch (IOException e) {
+            LOGGER.error("Failed to rename Xaero {} folder from {} to {}: {}", mapType, oldPath.getFileName(), newPath.getFileName(), e.getMessage());
+        } catch (Exception e) { // Catch any other unexpected errors
+            LOGGER.error("Unexpected error while renaming Xaero {} folder: {}", mapType, oldPath.getFileName(), e);
+        }
+    }
+
+
     // --- Make this method STATIC as it's called by the static fetch method ---
     // It only uses static LOGGER or gets instances like
     // MinecraftClient.getInstance()
-    private static void updateOrAddServer(String serverName, String fetchedIp) {
+        private static void updateOrAddServer(String serverName, String fetchedIp) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null) {
-            LOGGER.error("Cannot update server list: MinecraftClient is null.");
-            return;
-        }
-        // No need to check/reschedule thread here as it's already scheduled by the
-        // caller
+        if (client == null) { /*...*/ return; }
 
         ServerList serverList = new ServerList(client);
-        if (serverList == null) {
-            LOGGER.error("Cannot update server list: ServerList is null.");
-            return;
-        }
+        if (serverList == null) { /*...*/ return; }
 
         try {
             serverList.loadFile();
@@ -184,30 +267,40 @@ public class ServerFetcher implements ClientModInitializer {
             }
 
             if (targetServer != null) {
+                // --- IP Update Logic ---
                 if (!fetchedIp.equalsIgnoreCase(targetServer.address)) {
-                    LOGGER.info("Updating IP for server '{}' from '{}' to '{}'", serverName,
-                            targetServer.address, fetchedIp);
-                    targetServer.address = fetchedIp;
+                    // Store the OLD address BEFORE updating
+                    String oldAddress = targetServer.address; // <<< STORE OLD IP
+
+                    LOGGER.info("Updating IP for server '{}' from '{}' to '{}'", serverName, oldAddress, fetchedIp);
+                    targetServer.address = fetchedIp; // Update the ServerInfo object
                     serverList.set(targetServerIndex, targetServer);
+
+                    // --- CALL THE RENAMING METHOD ---
+                    renameXaeroFolders(oldAddress, fetchedIp); // <<< CALL RENAME
+                    // --------------------------------
+
                     needsSave = true;
                 } else {
-                    LOGGER.info("Server '{}' already has the correct IP ({}). No update needed.", serverName,
-                            fetchedIp);
+                    LOGGER.info("Server '{}' already has the correct IP ({}). No update needed.", serverName, fetchedIp);
                 }
+                // --- End IP Update Logic ---
             } else {
+                // --- Add New Server Logic ---
                 LOGGER.info("Adding server '{}' with IP '{}' to the list.", serverName, fetchedIp);
                 ServerInfo newServerInfo = new ServerInfo(serverName, fetchedIp, ServerInfo.ServerType.OTHER);
                 serverList.add(newServerInfo, false);
                 needsSave = true;
+                // --- End Add New Server Logic ---
             }
 
             if (needsSave) {
-                serverList.saveFile();
+                serverList.saveFile(); // Save the server list AFTER potential rename attempt
                 LOGGER.info("Server list saved.");
             }
 
         } catch (Exception e) {
-            LOGGER.error("Failed to update or add server entry in the server list.", e);
+            LOGGER.error("Failed to update or add server entry ('{}') in the server list.", serverName, e);
         }
     }
 
