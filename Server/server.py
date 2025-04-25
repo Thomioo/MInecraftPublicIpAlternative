@@ -1,31 +1,28 @@
-import uvicorn, logging
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
-from pyngrok import ngrok, conf
-from contextlib import asynccontextmanager
+import json
 import os
 import sys
 import threading
-import json
+from fastapi import FastAPI
+from pyngrok import ngrok, conf
+import uvicorn
+from contextlib import asynccontextmanager
 
+app = FastAPI()
 """======USER CONFIGURATION======"""
 NGROK_STATIC_DOMAIN = ""  # Get your unique name from ngrok dashboard
 conf.get_default().region = "eu"  # Change to your region if needed
-NGROK_AUTH_TOKENS = [
-    # "your_auth_token_1",
-    # "your_auth_token_2",
-    # Add your tokens here
-]
+NGROK_AUTH_TOKENS = [] # Add your ngrok auth tokens here
+# Example: ["2cUf05GxcIexqEI2yWBP660P4ro_5w3V22ZfpbPRHgkC6nygZ", "2HjXlyPg3GzJK2nMFhc5ZMJJL0V_26xDUY26j82KgMw8E1dTg"]
 """=============================="""
 
-app = FastAPI()
 public_address = None
 tcp_tunnel = None
 tcp_lock = threading.Lock()
-current_token_index = 0
-TOKEN_INDEX_FILE = "ngrok_token_index.json"
 
-logging.getLogger("pyngrok").setLevel(logging.CRITICAL)   # Suppress pyngrok logger
+
+current_token_index = 0
+
+TOKEN_INDEX_FILE = "ngrok_token_index.json"
 
 def save_token_index():
     with open(TOKEN_INDEX_FILE, "w") as f:
@@ -40,9 +37,6 @@ def load_token_index():
 
 def try_ngrok_connect_with_tokens(port):
     global tcp_tunnel
-    if not NGROK_AUTH_TOKENS:
-        print("No ngrok auth tokens configured.")
-        return None
     token = NGROK_AUTH_TOKENS[current_token_index]
     try:
         ngrok.set_auth_token(token)
@@ -66,12 +60,10 @@ def start_ngrok():
 def switch_tcp_token():
     global current_token_index, public_address, tcp_tunnel
     with tcp_lock:
-        if not NGROK_AUTH_TOKENS:
-            print("No ngrok auth tokens configured.")
-            return
         current_token_index = (current_token_index + 1) % len(NGROK_AUTH_TOKENS)
         save_token_index()
         print(f"Switched to token: {NGROK_AUTH_TOKENS[current_token_index][:6]}... for TCP tunnel.")
+        # Disconnect only the previous TCP tunnel
         if tcp_tunnel:
             ngrok.disconnect(tcp_tunnel.public_url)
             tcp_tunnel = None
@@ -96,8 +88,7 @@ def setup_ngrok_tunnel():
         if not NGROK_STATIC_DOMAIN or "YOUR_UNIQUE_NAME" in NGROK_STATIC_DOMAIN:
             return None
         # Always use the first token for HTTP tunnel
-        if NGROK_AUTH_TOKENS:
-            ngrok.set_auth_token(NGROK_AUTH_TOKENS[0])
+        ngrok.set_auth_token(NGROK_AUTH_TOKENS[0])
         public_url = ngrok.connect(addr=8080, domain=NGROK_STATIC_DOMAIN).public_url
         print(f"Using token {NGROK_AUTH_TOKENS[0][:6]}... for HTTP tunnel.")
         return public_url
@@ -123,18 +114,14 @@ async def get_ip():
 
 if __name__ == "__main__":
     load_token_index()
-    public_url = setup_ngrok_tunnel()
-    print("Starting server...")
-    if not public_url:
-        print("Failed to create ngrok tunnel. Please check your configuration.")
-    print(f"Public URL to put into the minecraft mod: {public_url}/ip")
     try:
+        public_url = setup_ngrok_tunnel()
         if public_url:
             uvicorn.run(
                 app,
                 host="127.0.0.1",
                 port=8080,
-                log_level="info",
+                log_level="info"
             )
     finally:
         save_token_index()
