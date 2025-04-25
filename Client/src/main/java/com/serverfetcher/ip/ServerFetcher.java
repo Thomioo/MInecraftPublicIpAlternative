@@ -27,6 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import com.serverfetcher.ip.mixin.MultiplayerScreenInvoker;
 
 public class ServerFetcher implements ClientModInitializer {
 
@@ -37,7 +40,7 @@ public class ServerFetcher implements ClientModInitializer {
     private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
-    
+
     private static String sanitizeServerAddress(String address) {
         if (address == null) {
             return "";
@@ -180,16 +183,19 @@ public class ServerFetcher implements ClientModInitializer {
         String sanitizedOld = sanitizeServerAddress(oldAddress);
         String sanitizedNew = sanitizeServerAddress(newAddress);
         if (sanitizedOld.isEmpty() || sanitizedNew.isEmpty()) {
-             LOGGER.warn("Skipping Xaero folder rename: Sanitized address is empty (Old: '{}', New: '{}')", sanitizedOld, sanitizedNew);
-             return;
+            LOGGER.warn("Skipping Xaero folder rename: Sanitized address is empty (Old: '{}', New: '{}')", sanitizedOld,
+                    sanitizedNew);
+            return;
         }
 
         Path runDir = client.runDirectory.toPath(); // Get Minecraft instance directory path
 
         // --- Define Base Paths based on user's description ---
-        // IMPORTANT: Ensure these base directories actually exist where Xaero's saves them in the user's setup!
+        // IMPORTANT: Ensure these base directories actually exist where Xaero's saves
+        // them in the user's setup!
         Path xaeroMinimapBase = runDir.resolve("xaero").resolve("minimap");
-        Path xaeroWorldMapBase = runDir.resolve("world-map"); // Assuming 'world-map' is directly in runDir based on description
+        Path xaeroWorldMapBase = runDir.resolve("world-map"); // Assuming 'world-map' is directly in runDir based on
+                                                              // description
 
         // --- Construct full old and new paths ---
         String folderPrefix = "Multiplayer_";
@@ -222,34 +228,44 @@ public class ServerFetcher implements ClientModInitializer {
             // 2. Check if the NEW folder *already* exists (potential conflict)
             if (Files.exists(newPath)) {
                 // Decide how to handle conflict: Log warning and abort (safest)
-                LOGGER.warn("Xaero {} folder for new IP already exists! Cannot rename automatically to avoid data loss: {}", mapType, newPath);
+                LOGGER.warn(
+                        "Xaero {} folder for new IP already exists! Cannot rename automatically to avoid data loss: {}",
+                        mapType, newPath);
                 // Alternative (Risky - Deletes existing data):
-                // LOGGER.warn("Xaero {} folder for new IP already exists! Deleting existing folder: {}", mapType, newPath);
-                // try { Files.delete(newPath); } catch (IOException eDel) { LOGGER.error("Failed to delete conflicting folder {}", newPath, eDel); return; }
+                // LOGGER.warn("Xaero {} folder for new IP already exists! Deleting existing
+                // folder: {}", mapType, newPath);
+                // try { Files.delete(newPath); } catch (IOException eDel) {
+                // LOGGER.error("Failed to delete conflicting folder {}", newPath, eDel);
+                // return; }
                 return; // Abort rename
             }
 
             // 3. Perform the rename (move)
             Files.move(oldPath, newPath); // Throws IOException on failure
-            LOGGER.info("Successfully renamed Xaero {} folder: {} -> {}", mapType, oldPath.getFileName(), newPath.getFileName());
+            LOGGER.info("Successfully renamed Xaero {} folder: {} -> {}", mapType, oldPath.getFileName(),
+                    newPath.getFileName());
 
         } catch (IOException e) {
-            LOGGER.error("Failed to rename Xaero {} folder from {} to {}: {}", mapType, oldPath.getFileName(), newPath.getFileName(), e.getMessage());
+            LOGGER.error("Failed to rename Xaero {} folder from {} to {}: {}", mapType, oldPath.getFileName(),
+                    newPath.getFileName(), e.getMessage());
         } catch (Exception e) { // Catch any other unexpected errors
             LOGGER.error("Unexpected error while renaming Xaero {} folder: {}", mapType, oldPath.getFileName(), e);
         }
     }
 
-
     // --- Make this method STATIC as it's called by the static fetch method ---
     // It only uses static LOGGER or gets instances like
     // MinecraftClient.getInstance()
-        private static void updateOrAddServer(String serverName, String fetchedIp) {
+    private static void updateOrAddServer(String serverName, String fetchedIp) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null) { /*...*/ return; }
+        if (client == null) {
+            /* ... */ return;
+        }
 
         ServerList serverList = new ServerList(client);
-        if (serverList == null) { /*...*/ return; }
+        if (serverList == null) {
+            /* ... */ return;
+        }
 
         try {
             serverList.loadFile();
@@ -282,7 +298,8 @@ public class ServerFetcher implements ClientModInitializer {
 
                     needsSave = true;
                 } else {
-                    LOGGER.info("Server '{}' already has the correct IP ({}). No update needed.", serverName, fetchedIp);
+                    LOGGER.info("Server '{}' already has the correct IP ({}). No update needed.", serverName,
+                            fetchedIp);
                 }
                 // --- End IP Update Logic ---
             } else {
@@ -297,10 +314,20 @@ public class ServerFetcher implements ClientModInitializer {
             if (needsSave) {
                 serverList.saveFile(); // Save the server list AFTER potential rename attempt
                 LOGGER.info("Server list saved.");
+                // Trigger UI refresh if MultiplayerScreen is open
+                refreshMultiplayerScreenIfOpen();
             }
 
         } catch (Exception e) {
             LOGGER.error("Failed to update or add server entry ('{}') in the server list.", serverName, e);
+        }
+    }
+
+    public static void refreshMultiplayerScreenIfOpen() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client != null && client.currentScreen instanceof MultiplayerScreen multiplayerScreen) {
+            ((MultiplayerScreenInvoker) multiplayerScreen).callRefresh();
+            LOGGER.info("Triggered MultiplayerScreen refresh and forced server list reload after IP update.");
         }
     }
 

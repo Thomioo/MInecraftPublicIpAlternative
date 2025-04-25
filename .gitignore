@@ -1,7 +1,7 @@
 # gradle
 
 Client/.gradle/
-Client/build/
+Client/build
 Client/out/
 Client/classes/
 
