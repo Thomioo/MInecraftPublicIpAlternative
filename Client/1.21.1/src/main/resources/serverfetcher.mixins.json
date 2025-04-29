@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "com.serverfetcher.ip.mixin",
+	"mixins": [
+		"MultiplayerScreenMixin"
+	],
+	"client": [
+		"MultiplayerScreenInvoker"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

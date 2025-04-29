@@ -1,43 +1,43 @@
 # gradle
 
-Client/.gradle/
-Client/build
-Client/out/
-Client/classes/
+Client/*/.gradle/
+Client/*/build
+Client/*/out/
+Client/*/classes/
 
 # eclipse
 
-Client/*.launch
+Client/*/*.launch
 
 # idea
 
-Client/.idea/
-Client/*.iml
-Client/*.ipr
-Client/*.iws
+Client/*/.idea/
+Client/*/*.iml
+Client/*/*.ipr
+Client/*/*.iws
 
 # vscode
 
-Client/.settings/
-Client/.vscode/
-Client/.vs/
-Client/bin/
-Client/.classpath
-Client/.project
+Client/*/.settings/
+Client/*/.vscode/
+Client/*/.vs/
+Client/*/bin/
+Client/*/.classpath
+Client/*/.project
 
 # macos
 
-Client/*.DS_Store
+Client/*/*.DS_Store
 
 # fabric
 
-Client/run/
+Client/*/run/
 
 # java
 
-Client/hs_err_*.log
-Client/replay_*.log
-Client/*.hprof
-Client/*.jfr
+Client/*/hs_err_*.log
+Client/*/replay_*.log
+Client/*/*.hprof
+Client/*/*.jfr
 
 /.dev

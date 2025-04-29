@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "serverfetcher",
+	"version": "${version}",
+	"name": "Server Fetcher",
+	"description": "Uses a python server to locate the current address of your minecraft server instead of constantly sharing your ngrok temporary one.",
+	"authors": [
+		"Tomesh"
+	],
+	"contact": {
+		"homepage": "https://github.com/Thomioo/MInecraftPublicIpAlternative/releases/",
+		"sources": "https://github.com/Thomioo/MInecraftPublicIpAlternative/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/serverfetcher/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.serverfetcher.ip.ServerFetcher"
+		],
+		"modmenu": [
+			"com.serverfetcher.ip.config.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"serverfetcher.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"cloth-config2": ">=11.1.136"
+	},
+	"suggests": {
+		"modmenu": ">=7.2.2"
+	}
+}
